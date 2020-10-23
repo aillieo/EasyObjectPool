@@ -1,0 +1,17 @@
+{
+    "name": "AillieoUtils.EasyObjectPool.Editor",
+    "references": [
+        "GUID:26651e67bd1d70b4c9d2175d46735aaf"
+    ],
+    "includePlatforms": [
+        "Editor"
+    ],
+    "excludePlatforms": [],
+    "allowUnsafeCode": false,
+    "overrideReferences": false,
+    "precompiledReferences": [],
+    "autoReferenced": true,
+    "defineConstraints": [],
+    "versionDefines": [],
+    "noEngineReferences": false
+}
