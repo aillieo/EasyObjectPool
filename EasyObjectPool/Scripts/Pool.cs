@@ -48,12 +48,14 @@ namespace AillieoUtils
             }
 
             onGet?.Invoke(item);
+            PoolProfiler.Report(this, PoolProfiler.PoolAction.Get);
             return item;
         }
 
         public void Recycle(T item)
         {
             onRecycle?.Invoke(item);
+            PoolProfiler.Report(this, PoolProfiler.PoolAction.Recycle);
             if (stack.Count < policy.sizeMax)
             {
                 stack.Push(item);
@@ -61,6 +63,7 @@ namespace AillieoUtils
             else
             {
                 destroyFunc?.Invoke(item);
+                PoolProfiler.Report(this, PoolProfiler.PoolAction.Destroy);
             }
         }
 
@@ -78,7 +81,9 @@ namespace AillieoUtils
             {
                 T item = stack.Pop();
                 onRecycle?.Invoke(item);
+                PoolProfiler.Report(this, PoolProfiler.PoolAction.Recycle);
                 destroyFunc?.Invoke(item);
+                PoolProfiler.Report(this, PoolProfiler.PoolAction.Destroy);
             }
         }
 
@@ -89,19 +94,17 @@ namespace AillieoUtils
 
         private T CreateNewItem()
         {
+            T newInstance = default;
             if (createFunc != null)
             {
-                return createFunc();
+                newInstance = createFunc();
             }
             else
             {
-                return Activator.CreateInstance<T>();
+                newInstance = Activator.CreateInstance<T>();
             }
-        }
-
-        public override string ToString()
-        {
-            return base.ToString();
+            PoolProfiler.Report(this, PoolProfiler.PoolAction.Create);
+            return newInstance;
         }
     }
 }
