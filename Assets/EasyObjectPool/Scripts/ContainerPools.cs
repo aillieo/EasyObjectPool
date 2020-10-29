@@ -4,7 +4,7 @@ namespace AillieoUtils
 {
     public static class ListPool<T>
     {
-        private static Pool<List<T>> pool = Pool<List<T>>.Create().SetSizeMax(10).SetCreateFunc(() => { return new List<T>(); }).SetOnRecycle(list => list.Clear()).AsPool();
+        private static Pool<List<T>> pool = Pool<List<T>>.Create().SetSizeMax(16).SetCreateFunc(() => { return new List<T>(); }).SetOnRecycle(list => list.Clear()).AsPool();
 
         public static List<T> Get()
         {
@@ -19,7 +19,7 @@ namespace AillieoUtils
 
     public static class DictPool<T, U>
     {
-        private static Pool<Dictionary<T, U>> pool = Pool<Dictionary<T, U>>.Create().SetSizeMax(10).SetCreateFunc(() => { return new Dictionary<T, U>(); }).SetOnRecycle(dict => dict.Clear()).AsPool();
+        private static Pool<Dictionary<T, U>> pool = Pool<Dictionary<T, U>>.Create().SetSizeMax(16).SetCreateFunc(() => { return new Dictionary<T, U>(); }).SetOnRecycle(dict => dict.Clear()).AsPool();
 
         public static Dictionary<T, U> Get()
         {
@@ -34,7 +34,7 @@ namespace AillieoUtils
 
     public static class QueuePool<T>
     {
-        private static Pool<Queue<T>> pool = Pool<Queue<T>>.Create().SetSizeMax(10).SetCreateFunc(() => { return new Queue<T>(); }).SetOnRecycle(queue => queue.Clear()).AsPool();
+        private static Pool<Queue<T>> pool = Pool<Queue<T>>.Create().SetSizeMax(16).SetCreateFunc(() => { return new Queue<T>(); }).SetOnRecycle(queue => queue.Clear()).AsPool();
 
         public static Queue<T> Get()
         {
@@ -49,7 +49,7 @@ namespace AillieoUtils
 
     public static class StackPool<T>
     {
-        private static Pool<Stack<T>> pool = Pool<Stack<T>>.Create().SetSizeMax(10).SetCreateFunc(() => { return new Stack<T>(); }).SetOnRecycle(stack => stack.Clear()).AsPool();
+        private static Pool<Stack<T>> pool = Pool<Stack<T>>.Create().SetSizeMax(16).SetCreateFunc(() => { return new Stack<T>(); }).SetOnRecycle(stack => stack.Clear()).AsPool();
 
         public static Stack<T> Get()
         {
@@ -64,7 +64,7 @@ namespace AillieoUtils
 
     public static class HashSetPool<T>
     {
-        private static Pool<HashSet<T>> pool = Pool<HashSet<T>>.Create().SetSizeMax(10).SetCreateFunc(() => { return new HashSet<T>(); }).SetOnRecycle(set => set.Clear()).AsPool();
+        private static Pool<HashSet<T>> pool = Pool<HashSet<T>>.Create().SetSizeMax(16).SetCreateFunc(() => { return new HashSet<T>(); }).SetOnRecycle(set => set.Clear()).AsPool();
 
         public static HashSet<T> Get()
         {

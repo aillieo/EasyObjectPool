@@ -3,8 +3,15 @@ using System.Collections.Generic;
 
 namespace AillieoUtils
 {
-    public class Pool<T>
+    public class Pool<T> where T : class
     {
+        
+#if EASY_OBJECT_POOL_SAFE_MODE
+        public static readonly bool SAFE_MODE = true;
+#else
+        public static readonly bool SAFE_MODE = false;
+#endif
+        
         private readonly Stack<T> stack;
 
         private readonly Func<T> createFunc;
@@ -13,9 +20,15 @@ namespace AillieoUtils
         private readonly Action<T> onGet;
         private readonly Action<T> onRecycle;
 
-        private readonly PoolPolicy policy;
+        internal readonly PoolPolicy policy;
 
-        internal Pool(PoolPolicy policy, Func<T> createFunc, Action<T> onGet, Action<T> onRecycle, Action<T> destroyFunc)
+        internal readonly string nameForProfiler;
+
+#if EASY_OBJECT_POOL_SAFE_MODE
+        private HashSet<T> validationSet = new HashSet<T>();
+#endif
+
+        internal Pool(PoolPolicy policy, Func<T> createFunc, Action<T> onGet, Action<T> onRecycle, Action<T> destroyFunc, string nameForProfiler = null)
         {
             this.stack = new Stack<T>(policy.reserveOnTrim);
             this.policy = policy;
@@ -23,6 +36,12 @@ namespace AillieoUtils
             this.onGet = onGet;
             this.onRecycle = onRecycle;
             this.destroyFunc = destroyFunc;
+            if (string.IsNullOrWhiteSpace(nameForProfiler))
+            {
+                nameForProfiler = $"Pool<{typeof(T).Name}>";
+            }
+
+            this.nameForProfiler = nameForProfiler;
         }
 
         public static PoolBuilder<T> Create()
@@ -49,11 +68,26 @@ namespace AillieoUtils
 
             onGet?.Invoke(item);
             PoolProfiler.Report(this, PoolProfiler.PoolAction.Get);
+            
+#if EASY_OBJECT_POOL_SAFE_MODE
+            validationSet.Add(item);
+#endif
             return item;
         }
 
         public void Recycle(T item)
         {
+#if EASY_OBJECT_POOL_SAFE_MODE
+            if (validationSet.Contains(item))
+            {
+                validationSet.Remove(item);
+            }
+            else
+            {
+                throw new Exception("attempts to recycle an invalid object: has been recycled or does not belong to this pool");
+            }
+#endif
+            
             onRecycle?.Invoke(item);
             PoolProfiler.Report(this, PoolProfiler.PoolAction.Recycle);
             if (stack.Count < policy.sizeMax)
