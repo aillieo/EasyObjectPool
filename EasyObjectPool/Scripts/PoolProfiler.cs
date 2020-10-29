@@ -16,14 +16,16 @@ namespace AillieoUtils
 
         public class ProfilerInfo
         {
-            internal ProfilerInfo(string name, string type)
+            internal ProfilerInfo(string name, string type, string policy)
             {
                 this.name = name;
                 this.type = type;
+                this.policy = policy;
             }
 
             public string name { get; private set; }
             public string type { get; private set; }
+            public string policy { get; private set; }
             public int timesCreate { get; internal set; }
             public int timesGet { get; internal set; }
             public int timesRecycle { get; internal set; }
@@ -31,12 +33,12 @@ namespace AillieoUtils
         }
 
         [Conditional("UNITY_EDITOR")]
-        public static void Report<T>(Pool<T> pool, PoolAction action)
+        public static void Report<T>(Pool<T> pool, PoolAction action) where T : class
         {
             ProfilerInfo info;
             if (!records.TryGetValue(pool, out info))
             {
-                info = new ProfilerInfo(pool.ToString(), typeof(T).Name);
+                info = new ProfilerInfo(pool.nameForProfiler, typeof(T).Name, pool.policy.ToString());
                 records.Add(pool, info);
             }
             switch(action)

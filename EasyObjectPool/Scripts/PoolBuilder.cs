@@ -2,13 +2,14 @@ using System;
 
 namespace AillieoUtils
 {
-    public class PoolBuilder<T>
+    public class PoolBuilder<T> where T : class
     {
         private Func<T> createFunc;
         private Action<T> onGet;
         private Action<T> onRecycle;
         private Action<T> destroyFunc;
         private PoolPolicy policy;
+        private string nameForProfiler;
 
         private void EnsurePoolPolicy()
         {
@@ -25,7 +26,7 @@ namespace AillieoUtils
         public Pool<T> AsPool()
         {
             EnsurePoolPolicy();
-            return new Pool<T>(policy, createFunc, onGet, onRecycle, destroyFunc);
+            return new Pool<T>(policy, createFunc, onGet, onRecycle, destroyFunc, nameForProfiler);
         }
 
         public PoolBuilder<T> SetPolicy(PoolPolicy policy)
@@ -69,6 +70,12 @@ namespace AillieoUtils
         public PoolBuilder<T> SetDestroyFunc(Action<T> destroyFunc)
         {
             this.destroyFunc = destroyFunc;
+            return this;
+        }
+
+        public PoolBuilder<T> SetNameForProfiler(string nameForProfiler)
+        {
+            this.nameForProfiler = nameForProfiler;
             return this;
         }
     }
