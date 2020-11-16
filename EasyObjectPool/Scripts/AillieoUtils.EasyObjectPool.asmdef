@@ -1,6 +1,9 @@
 {
     "name": "AillieoUtils.EasyObjectPool",
-    "references": [],
+    "references": [
+        "AillieoUtils.EasyScheduler",
+        "AillieoUtils.UnitySingleton"
+    ],
     "includePlatforms": [],
     "excludePlatforms": [],
     "allowUnsafeCode": false,
