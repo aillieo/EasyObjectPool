@@ -90,10 +90,14 @@ namespace AillieoUtils
             }
         }
 
-        private List<KeyValuePair<GameObject,Pool<GameObject>>> toRemove = new List<KeyValuePair<GameObject, Pool<GameObject>>>();
-
         [MenuItem("AillieoUtils/EasyObjectPool/GameObjectPool/RemoveInvalid")]
-        public void RemoveInvalid()
+        public static void RemoveInvalid()
+        {
+            Instance.InternalRemoveInvalid();
+        }
+
+        private List<KeyValuePair<GameObject,Pool<GameObject>>> toRemove = new List<KeyValuePair<GameObject, Pool<GameObject>>>();
+        private void InternalRemoveInvalid()
         {
             toRemove.Clear();
             foreach (var pair in instanceLookUp)
