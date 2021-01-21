@@ -1,6 +1,9 @@
 using System;
 using System.Collections.Generic;
 using UnityEngine;
+#if UNITY_EDITOR
+using UnityEditor;
+#endif
 
 namespace AillieoUtils
 {
@@ -22,8 +25,11 @@ namespace AillieoUtils
         {
             Application.lowMemory -= OnLowMemory;
 
-            Scheduler.Unschedule(task);
-            task = null;
+            if (Scheduler.HasInstance)
+            {
+                Scheduler.Unschedule(task);
+                task = null;
+            }
             base.OnDestroy();
         }
 
@@ -83,21 +89,39 @@ namespace AillieoUtils
                 Debug.LogWarning($"attempts to recycle an invalid gameObject {instance}: has been recycled or does not belong to this pool");
             }
         }
-        
-        private void RemoveInvalid()
+
+        private List<KeyValuePair<GameObject,Pool<GameObject>>> toRemove = new List<KeyValuePair<GameObject, Pool<GameObject>>>();
+
+        [MenuItem("AillieoUtils/EasyObjectPool/GameObjectPool/RemoveInvalid")]
+        public void RemoveInvalid()
         {
+            toRemove.Clear();
             foreach (var pair in instanceLookUp)
             {
                 if (pair.Key == null)
                 {
                     // destroyed external
-                    // todo
+                    toRemove.Add(pair);
                 }
             }
+
+            foreach (var item in toRemove)
+            {
+                instanceLookUp.Remove(item.Key);
+                item.Value.Recycle(item.Key);
+            }
+
+            toRemove.Clear();
         }
 
         public static GameObject Get(GameObject prefab)
         {
+#if UNITY_EDITOR
+            if (!PrefabUtility.IsPartOfPrefabAsset(prefab))
+            {
+                Debug.LogWarning($"Create a pool with a non-prefab GameObject '{prefab.name}' may lead to unexpected behaviour");
+            }
+#endif
             return Instance.InternalGet(prefab);
         }
 
@@ -105,7 +129,8 @@ namespace AillieoUtils
         {
             Instance.InternalRecycle(instance);
         }
-        
+
+        [MenuItem("AillieoUtils/EasyObjectPool/GameObjectPool/OnLowMemory")]
         public static void OnLowMemory()
         {
             foreach (var pair in Instance.prefabLookUp)
