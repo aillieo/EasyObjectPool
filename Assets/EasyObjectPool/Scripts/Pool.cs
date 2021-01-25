@@ -140,5 +140,10 @@ namespace AillieoUtils
             PoolProfiler.Report(this, PoolProfiler.PoolAction.Create);
             return newInstance;
         }
+
+        public AutoRecycleScope<T> GetAutoRecycleScope()
+        {
+            return new AutoRecycleScope<T>(this);
+        }
     }
 }
