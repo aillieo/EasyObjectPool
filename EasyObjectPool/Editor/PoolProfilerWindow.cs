@@ -1,4 +1,4 @@
-﻿using System.Collections;
+using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEditor;
@@ -19,6 +19,7 @@ namespace AillieoUtils
 
         private GUILayoutOption[] widthControl_150;
         private GUILayoutOption[] widthControl_80;
+        private Vector2 scrollPos;
 
         private void OnEnable()
         {
@@ -46,6 +47,8 @@ namespace AillieoUtils
             GUILayout.Label($"Destroy", widthControl_80);
             GUILayout.EndHorizontal();
 
+            scrollPos = EditorGUILayout.BeginScrollView(scrollPos);
+
             foreach(var i in records)
             {
                 GUILayout.BeginHorizontal("box");
@@ -58,6 +61,8 @@ namespace AillieoUtils
                 GUILayout.Label($"{i.timesDestroy}", widthControl_80);
                 GUILayout.EndHorizontal();
             }
+
+            EditorGUILayout.EndScrollView();
         }
 
 
