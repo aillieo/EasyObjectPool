@@ -1,4 +1,4 @@
-﻿using System.Collections;
+using System.Collections;
 using System.Collections.Generic;
 using System.Diagnostics;
 
@@ -16,7 +16,24 @@ namespace AillieoUtils
 
         public class ProfilerInfo
         {
-            internal ProfilerInfo(string name, string type, string policy)
+            public struct PolicyInfo
+            {
+                public int reserveOnTrim;
+                public int sizeMax;
+
+                public PolicyInfo(int reserveOnTrim, int sizeMax)
+                {
+                    this.reserveOnTrim = reserveOnTrim;
+                    this.sizeMax = sizeMax;
+                }
+
+                public override string ToString()
+                {
+                    return $"RES:{reserveOnTrim}/SIZE:{sizeMax}";
+                }
+            }
+
+            internal ProfilerInfo(string name, string type, PolicyInfo policy)
             {
                 this.name = name;
                 this.type = type;
@@ -25,23 +42,24 @@ namespace AillieoUtils
 
             public string name { get; private set; }
             public string type { get; private set; }
-            public string policy { get; private set; }
+            public PolicyInfo policy { get; private set; }
             public int timesCreate { get; internal set; }
             public int timesGet { get; internal set; }
             public int timesRecycle { get; internal set; }
             public int timesDestroy { get; internal set; }
+            public int countInPool { get; internal set; }
         }
 
         [Conditional("UNITY_EDITOR")]
-        public static void Report<T>(Pool<T> pool, PoolAction action) where T : class
+        public static void Report<T>(Pool<T> pool, PoolAction action, int countInPool) where T : class
         {
             ProfilerInfo info;
             if (!records.TryGetValue(pool, out info))
             {
-                info = new ProfilerInfo(pool.nameForProfiler, typeof(T).Name, pool.policy.ToString());
+                info = new ProfilerInfo(pool.nameForProfiler, typeof(T).Name, new ProfilerInfo.PolicyInfo(pool.policy.reserveOnTrim, pool.policy.sizeMax));
                 records.Add(pool, info);
             }
-            switch(action)
+            switch (action)
             {
                 case PoolAction.Create:
                     info.timesCreate++;
@@ -56,6 +74,7 @@ namespace AillieoUtils
                     info.timesDestroy++;
                     break;
             }
+            info.countInPool = countInPool;
         }
 
         private static readonly Dictionary<object, ProfilerInfo> records = new Dictionary<object, ProfilerInfo>();
@@ -63,10 +82,26 @@ namespace AillieoUtils
         public static void RetrieveRecords(List<ProfilerInfo> infoList)
         {
             infoList.Clear();
-            foreach(var pair in records)
+            foreach (var pair in records)
             {
                 infoList.Add(pair.Value);
             }
+        }
+
+        public static bool IsBadPolicy(ProfilerInfo profilerInfo)
+        {
+            return profilerInfo.timesDestroy > 2 * profilerInfo.policy.sizeMax
+                || profilerInfo.timesRecycle < profilerInfo.policy.reserveOnTrim * 0.1f;
+        }
+
+        public static bool IsLeakPotential(ProfilerInfo profilerInfo)
+        {
+            return profilerInfo.timesGet > profilerInfo.timesRecycle * 10;
+        }
+
+        public static bool IsErrorRecycling(ProfilerInfo profilerInfo)
+        {
+            return profilerInfo.timesRecycle > profilerInfo.timesGet;
         }
     }
 

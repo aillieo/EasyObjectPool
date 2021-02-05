@@ -11,11 +11,18 @@ namespace AillieoUtils
         private PoolPolicy policy;
         private string nameForProfiler;
 
-        private void EnsurePoolPolicy()
+        private void EnsurePoolPolicy(bool createNewInstance)
         {
             if (this.policy == null)
             {
-                this.policy = new PoolPolicy();
+                if(createNewInstance)
+                {
+                    this.policy = new PoolPolicy();
+                }
+                else
+                {
+                    this.policy = PoolPolicy.defaultInstance;
+                }
             }
         }
 
@@ -25,7 +32,7 @@ namespace AillieoUtils
 
         public Pool<T> AsPool()
         {
-            EnsurePoolPolicy();
+            EnsurePoolPolicy(false);
             return new Pool<T>(policy, createFunc, onGet, onRecycle, destroyFunc, nameForProfiler);
         }
 
@@ -37,14 +44,14 @@ namespace AillieoUtils
 
         public PoolBuilder<T> SetReserveOnTrim(int reserveOnTrim)
         {
-            EnsurePoolPolicy();
+            EnsurePoolPolicy(true);
             this.policy.reserveOnTrim = reserveOnTrim;
             return this;
         }
 
         public PoolBuilder<T> SetSizeMax(int sizeMax)
         {
-            EnsurePoolPolicy();
+            EnsurePoolPolicy(true);
             this.policy.sizeMax = sizeMax;
             return this;
         }

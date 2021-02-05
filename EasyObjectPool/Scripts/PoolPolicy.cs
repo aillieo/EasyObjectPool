@@ -8,11 +8,6 @@ namespace AillieoUtils
         public int reserveOnTrim = 0;
         public int sizeMax = 8;
 
-        public override string ToString()
-        {
-            return $"RES:{reserveOnTrim}/SIZE:{sizeMax}";
-        }
+        public static readonly PoolPolicy defaultInstance = new PoolPolicy();
     }
-    
-    
 }

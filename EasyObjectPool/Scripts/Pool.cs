@@ -67,7 +67,7 @@ namespace AillieoUtils
             }
 
             onGet?.Invoke(item);
-            PoolProfiler.Report(this, PoolProfiler.PoolAction.Get);
+            PoolProfiler.Report(this, PoolProfiler.PoolAction.Get, stack.Count);
             
 #if EASY_OBJECT_POOL_SAFE_MODE
             validationSet.Add(item);
@@ -89,15 +89,16 @@ namespace AillieoUtils
 #endif
             
             onRecycle?.Invoke(item);
-            PoolProfiler.Report(this, PoolProfiler.PoolAction.Recycle);
             if (stack.Count < policy.sizeMax)
             {
                 stack.Push(item);
+                PoolProfiler.Report(this, PoolProfiler.PoolAction.Recycle, stack.Count);
             }
             else
             {
+                PoolProfiler.Report(this, PoolProfiler.PoolAction.Recycle, stack.Count);
                 destroyFunc?.Invoke(item);
-                PoolProfiler.Report(this, PoolProfiler.PoolAction.Destroy);
+                PoolProfiler.Report(this, PoolProfiler.PoolAction.Destroy, stack.Count);
             }
         }
 
@@ -115,9 +116,9 @@ namespace AillieoUtils
             {
                 T item = stack.Pop();
                 onRecycle?.Invoke(item);
-                PoolProfiler.Report(this, PoolProfiler.PoolAction.Recycle);
+                PoolProfiler.Report(this, PoolProfiler.PoolAction.Recycle, stack.Count);
                 destroyFunc?.Invoke(item);
-                PoolProfiler.Report(this, PoolProfiler.PoolAction.Destroy);
+                PoolProfiler.Report(this, PoolProfiler.PoolAction.Destroy, stack.Count);
             }
         }
 
@@ -137,7 +138,7 @@ namespace AillieoUtils
             {
                 newInstance = Activator.CreateInstance<T>();
             }
-            PoolProfiler.Report(this, PoolProfiler.PoolAction.Create);
+            PoolProfiler.Report(this, PoolProfiler.PoolAction.Create, stack.Count);
             return newInstance;
         }
 

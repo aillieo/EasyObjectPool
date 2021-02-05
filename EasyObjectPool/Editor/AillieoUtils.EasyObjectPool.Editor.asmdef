@@ -1,7 +1,8 @@
 {
     "name": "AillieoUtils.EasyObjectPool.Editor",
     "references": [
-        "GUID:26651e67bd1d70b4c9d2175d46735aaf"
+        "AillieoUtils.EasyObjectPool",
+        "AillieoUtils.UnitySingleton"
     ],
     "includePlatforms": [
         "Editor"
