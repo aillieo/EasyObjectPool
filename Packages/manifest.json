@@ -1,5 +1,8 @@
 {
   "dependencies": {
+    "com.aillieo.easy-events": "https://github.com/aillieo/EasyEvent.git#upm",
+    "com.aillieo.easy-scheduler": "https://github.com/aillieo/EasyScheduler.git#upm",
+    "com.aillieo.unity-singleton": "https://github.com/aillieo/UnitySingleton.git#upm",
     "com.unity.collab-proxy": "1.2.16",
     "com.unity.ide.rider": "1.1.4",
     "com.unity.ide.vscode": "1.2.0",
@@ -38,5 +41,19 @@
     "com.unity.modules.vr": "1.0.0",
     "com.unity.modules.wind": "1.0.0",
     "com.unity.modules.xr": "1.0.0"
+  },
+  "lock": {
+    "com.aillieo.easy-events": {
+      "revision": "upm",
+      "hash": "49748580241f34c9b605f26998bd31118845e0e7"
+    },
+    "com.aillieo.unity-singleton": {
+      "revision": "upm",
+      "hash": "72acce70f260dfd549ca237d9141465a1910ac0a"
+    },
+    "com.aillieo.easy-scheduler": {
+      "revision": "upm",
+      "hash": "2a26deed3f8b6db0ad5fef5e31d0db787106de07"
+    }
   }
 }

@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEditor;
 using System.Linq;
+using UnityEditor.Compilation;
 
 namespace AillieoUtils
 {
@@ -47,7 +48,8 @@ namespace AillieoUtils
 
         private static void ReimportAllScripts()
         {
-            AssetDatabase.FindAssets("t:script").ToList().ForEach(s => AssetDatabase.ImportAsset(AssetDatabase.GUIDToAssetPath(s)));
+            CompilationPipeline.RequestScriptCompilation();
+            //AssetDatabase.FindAssets("t:script").ToList().ForEach(s => AssetDatabase.ImportAsset(AssetDatabase.GUIDToAssetPath(s)));
         }
         
     }

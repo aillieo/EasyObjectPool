@@ -11,7 +11,7 @@ namespace AillieoUtils
     {
         private readonly Dictionary<GameObject, Pool<GameObject>> prefabLookUp = new Dictionary<GameObject, Pool<GameObject>>();
         private readonly Dictionary<GameObject, Pool<GameObject>> instanceLookUp = new Dictionary<GameObject, Pool<GameObject>>();
-        private Task task;
+        private ScheduledTask task;
 
         private void Awake()
         {
@@ -140,6 +140,22 @@ namespace AillieoUtils
             foreach (var pair in Instance.prefabLookUp)
             {
                 pair.Value.Trim();
+            }
+        }
+
+        public static void Prepare(GameObject prefab, int count)
+        {
+            if (Instance.prefabLookUp.TryGetValue(prefab, out Pool<GameObject> pool))
+            {
+                pool.Prepare(count);
+            }
+        }
+
+        public static void Trim(GameObject prefab)
+        {
+            if (Instance.prefabLookUp.TryGetValue(prefab, out Pool<GameObject> pool))
+            {
+                pool.Trim();
             }
         }
     }
