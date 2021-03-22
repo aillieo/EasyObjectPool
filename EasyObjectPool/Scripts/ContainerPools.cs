@@ -16,9 +16,9 @@ namespace AillieoUtils
             pool.Recycle(list);
         }
 
-        public static AutoRecycleScope<List<T>> GetAutoRecycleScope()
+        public static AutoRecycleScope<List<T>> GetScope()
         {
-            return pool.GetAutoRecycleScope();
+            return pool.GetScope();
         }
     }
 
@@ -36,9 +36,9 @@ namespace AillieoUtils
             pool.Recycle(dict);
         }
 
-        public static AutoRecycleScope<Dictionary<T, U>> GetAutoRecycleScope()
+        public static AutoRecycleScope<Dictionary<T, U>> GetScope()
         {
-            return pool.GetAutoRecycleScope();
+            return pool.GetScope();
         }
     }
 
@@ -56,9 +56,9 @@ namespace AillieoUtils
             pool.Recycle(queue);
         }
 
-        public static AutoRecycleScope<Queue<T>> GetAutoRecycleScope()
+        public static AutoRecycleScope<Queue<T>> GetScope()
         {
-            return pool.GetAutoRecycleScope();
+            return pool.GetScope();
         }
     }
 
@@ -76,9 +76,9 @@ namespace AillieoUtils
             pool.Recycle(stack);
         }
 
-        public static AutoRecycleScope<Stack<T>> GetAutoRecycleScope()
+        public static AutoRecycleScope<Stack<T>> GetScope()
         {
-            return pool.GetAutoRecycleScope();
+            return pool.GetScope();
         }
     }
 
@@ -96,9 +96,9 @@ namespace AillieoUtils
             pool.Recycle(set);
         }
 
-        public static AutoRecycleScope<HashSet<T>> GetAutoRecycleScope()
+        public static AutoRecycleScope<HashSet<T>> GetScope()
         {
-            return pool.GetAutoRecycleScope();
+            return pool.GetScope();
         }
     }
 }

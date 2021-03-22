@@ -70,9 +70,9 @@ namespace AillieoUtils
             pool.Recycle(instance);
         }
 
-        public AutoRecycleScope<GameObject> GetAutoRecycleScope()
+        public AutoRecycleScope<GameObject> GetScope()
         {
-            return pool.GetAutoRecycleScope();
+            return pool.GetScope();
         }
 
         public void Purge()
