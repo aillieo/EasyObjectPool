@@ -1,17 +1,18 @@
 using System;
 using System.Collections.Generic;
+using System.Reflection;
 
 namespace AillieoUtils
 {
     public class Pool<T> where T : class
     {
-        
+
 #if EASY_OBJECT_POOL_SAFE_MODE
         public static readonly bool SAFE_MODE = true;
 #else
         public static readonly bool SAFE_MODE = false;
 #endif
-        
+
         private readonly Stack<T> stack;
 
         private readonly Func<T> createFunc;
@@ -49,6 +50,24 @@ namespace AillieoUtils
             return new PoolBuilder<T>();
         }
 
+        public static Pool<R> CreateDefault<R>() where R : class, IPoolable, new()
+        {
+            PoolBuilder<R> builder = Pool<R>.Create();
+            builder.SetOnGet(o => o.OnGet());
+            builder.SetOnRecycle(o => o.OnRecycle());
+            var attr = typeof(R).GetCustomAttribute<PoolStrategyAttribute>(true);
+            if (attr != null)
+            {
+                builder.SetPolicy(new PoolPolicy()
+                {
+                    sizeMax = attr.sizeMax,
+                    reserveOnTrim = attr.reserveOnTrim,
+                });
+            }
+
+            return builder.AsPool();
+        }
+
         public void Trim()
         {
             Trim(policy.reserveOnTrim);
@@ -68,7 +87,7 @@ namespace AillieoUtils
 
             onGet?.Invoke(item);
             PoolProfiler.Report(this, PoolProfiler.PoolAction.Get, stack.Count);
-            
+
 #if EASY_OBJECT_POOL_SAFE_MODE
             validationSet.Add(item);
 #endif
@@ -87,7 +106,7 @@ namespace AillieoUtils
                 throw new Exception("attempts to recycle an invalid object: has been recycled or does not belong to this pool");
             }
 #endif
-            
+
             onRecycle?.Invoke(item);
             if (stack.Count < policy.sizeMax)
             {
@@ -142,7 +161,7 @@ namespace AillieoUtils
             return newInstance;
         }
 
-        public AutoRecycleScope<T> GetAutoRecycleScope()
+        public AutoRecycleScope<T> GetScope()
         {
             return new AutoRecycleScope<T>(this);
         }
