@@ -50,7 +50,7 @@ namespace AillieoUtils
             return new PoolBuilder<T>();
         }
 
-        public static Pool<R> CreateDefault<R>() where R : class, IPoolable, new()
+        public static Pool<R> CreateDefault<R>() where R : class, T, IPoolable, new()
         {
             PoolBuilder<R> builder = Pool<R>.Create();
             builder.SetOnGet(o => o.OnGet());
