@@ -48,6 +48,7 @@ namespace AillieoUtils
             public int timesRecycle { get; internal set; }
             public int timesDestroy { get; internal set; }
             public int countInPool { get; internal set; }
+            internal bool critical { get; set; }
         }
 
         [Conditional("UNITY_EDITOR")]
@@ -58,6 +59,33 @@ namespace AillieoUtils
             {
                 info = new ProfilerInfo(pool.nameForProfiler, typeof(T).Name, new ProfilerInfo.PolicyInfo(pool.policy.reserveOnTrim, pool.policy.sizeMax));
                 records.Add(pool, info);
+            }
+            switch (action)
+            {
+                case PoolAction.Create:
+                    info.timesCreate++;
+                    break;
+                case PoolAction.Get:
+                    info.timesGet++;
+                    break;
+                case PoolAction.Recycle:
+                    info.timesRecycle++;
+                    break;
+                case PoolAction.Destroy:
+                    info.timesDestroy++;
+                    break;
+            }
+            info.countInPool = countInPool;
+        }
+
+        [Conditional("UNITY_EDITOR")]
+        public static void Report<T>(string poolName, PoolPolicy poolPolicy, PoolAction action, int countInPool) where T : class
+        {
+            ProfilerInfo info;
+            if (!records.TryGetValue(poolName, out info))
+            {
+                info = new ProfilerInfo(poolName, typeof(T).Name, new ProfilerInfo.PolicyInfo(poolPolicy.reserveOnTrim, poolPolicy.sizeMax));
+                records.Add(poolName, info);
             }
             switch (action)
             {

@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEditor;
 using static AillieoUtils.PoolProfiler;
+using System.Linq;
 
 namespace AillieoUtils
 {
@@ -24,6 +25,9 @@ namespace AillieoUtils
         private Vector2 scrollPos;
         private static readonly float footHeight = EditorGUIUtility.singleLineHeight * 2f;
 
+        private string filterString = string.Empty;
+        private bool showCriticalOnly = false;
+
         private void OnEnable()
         {
             widthControl_150 = new GUILayoutOption[] { GUILayout.ExpandWidth(false), GUILayout.Width(150) };
@@ -40,6 +44,8 @@ namespace AillieoUtils
                 return;
             }
 
+            EditorGUILayout.BeginVertical("box");
+
             EditorGUILayout.BeginHorizontal();
 
             if (GUILayout.Button("OnLowMemory"))
@@ -54,6 +60,13 @@ namespace AillieoUtils
 
             EditorGUILayout.EndHorizontal();
 
+            EditorGUILayout.BeginHorizontal();
+            showCriticalOnly = EditorGUILayout.ToggleLeft(new GUIContent("Show Critical Only"), showCriticalOnly);
+            filterString = EditorGUILayout.TextField(new GUIContent("Text Filter"), filterString);
+            EditorGUILayout.EndHorizontal();
+
+            EditorGUILayout.EndVertical();
+
             DrawHeader();
 
             scrollPos = EditorGUILayout.BeginScrollView(scrollPos);
@@ -63,12 +76,27 @@ namespace AillieoUtils
                 colorRed = new GUIStyle("label") { normal = new GUIStyleState() { textColor = Color.red } };
             }
 
-            foreach (var i in records)
+            foreach (var i in GetFiltered())
             {
                 DrawEntry(i);
             }
 
             EditorGUILayout.EndScrollView();
+        }
+
+        private IEnumerable<ProfilerInfo> GetFiltered()
+        {
+            IEnumerable<ProfilerInfo> result = records;
+            if (showCriticalOnly)
+            {
+                result = result.Where(r => r.critical);
+            }
+            if (!string.IsNullOrEmpty(filterString))
+            {
+                result = result.Where(r => r.name.Contains(filterString));
+            }
+
+            return result;
         }
 
         private void DrawHeader()
@@ -121,6 +149,8 @@ namespace AillieoUtils
             }
 
             GUILayout.Label($"{profilerInfo.timesDestroy}", widthControl_80);
+
+            profilerInfo.critical = GUILayout.Toggle(profilerInfo.critical, new GUIContent("critical"));
 
             GUILayout.EndHorizontal();
         }

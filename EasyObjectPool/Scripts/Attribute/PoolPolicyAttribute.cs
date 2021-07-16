@@ -1,9 +1,9 @@
-﻿using System;
+using System;
 
 namespace AillieoUtils
 {
     [AttributeUsage(validOn: AttributeTargets.Class, AllowMultiple = false)]
-    public class PoolStrategyAttribute : Attribute
+    public class PoolPolicyAttribute : Attribute
     {
         public int reserveOnTrim { get; set; } = 0;
 

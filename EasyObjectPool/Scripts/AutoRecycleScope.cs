@@ -9,16 +9,16 @@ namespace AillieoUtils
         {
             recorder = HashSetPool<T>.Get();
             this.pool = pool;
-            disposed = false;
+            alive = true;
         }
 
-        private bool disposed;
+        private bool alive;
         private readonly Pool<T> pool;
         private HashSet<T> recorder;
 
         public T Get()
         {
-            if (disposed)
+            if (!alive)
             {
                 throw new Exception($"{typeof(AutoRecycleScope<T>)} is disposed");
             }
@@ -30,7 +30,7 @@ namespace AillieoUtils
 
         public void Recycle(T obj)
         {
-            if (disposed)
+            if (!alive)
             {
                 throw new Exception($"{typeof(AutoRecycleScope<T>)} is disposed");
             }
@@ -41,11 +41,11 @@ namespace AillieoUtils
 
         public void Dispose()
         {
-            if(disposed)
+            if(!alive)
             {
                 return;
             }
-            disposed = true;
+            alive = false;
 
             foreach(T item in recorder)
             {
