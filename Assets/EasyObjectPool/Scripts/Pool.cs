@@ -55,7 +55,7 @@ namespace AillieoUtils
             PoolBuilder<R> builder = Pool<R>.Create();
             builder.SetOnGet(o => o.OnGet());
             builder.SetOnRecycle(o => o.OnRecycle());
-            var attr = typeof(R).GetCustomAttribute<PoolStrategyAttribute>(true);
+            var attr = typeof(R).GetCustomAttribute<PoolPolicyAttribute>(true);
             if (attr != null)
             {
                 builder.SetPolicy(new PoolPolicy()
