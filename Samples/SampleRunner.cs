@@ -36,7 +36,7 @@ public class SampleRunner : MonoBehaviour
 
     void Start()
     {
-        pool1 = Pool<CubeDefault>.CreateDefault<CubeDefault>();
+        pool1 = Pool.CreateDefault<CubeDefault>();
 
         pool2 = Pool<CubeObject>.Create()
             .SetCreateFunc(() => GameObject.Instantiate(cubeObject))

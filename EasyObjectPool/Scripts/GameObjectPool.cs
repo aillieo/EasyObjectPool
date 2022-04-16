@@ -90,7 +90,9 @@ namespace AillieoUtils
             }
         }
 
+#if UNITY_EDITOR
         [MenuItem("AillieoUtils/EasyObjectPool/GameObjectPool/RemoveInvalid")]
+#endif
         public static void RemoveInvalid()
         {
             Instance.InternalRemoveInvalid();
@@ -134,7 +136,9 @@ namespace AillieoUtils
             Instance.InternalRecycle(instance);
         }
 
+#if UNITY_EDITOR
         [MenuItem("AillieoUtils/EasyObjectPool/GameObjectPool/OnLowMemory")]
+#endif
         public static void OnLowMemory()
         {
             foreach (var pair in Instance.prefabLookUp)

@@ -4,6 +4,27 @@ using System.Reflection;
 
 namespace AillieoUtils
 {
+    public static class Pool
+    {
+        public static Pool<T> CreateDefault<T>() where T : class, IPoolable, new()
+        {
+            PoolBuilder<T> builder = Pool<T>.Create();
+            builder.SetOnGet(o => o.OnGet());
+            builder.SetOnRecycle(o => o.OnRecycle());
+            var attr = typeof(T).GetCustomAttribute<PoolPolicyAttribute>(true);
+            if (attr != null)
+            {
+                builder.SetPolicy(new PoolPolicy()
+                {
+                    sizeMax = attr.sizeMax,
+                    reserveOnTrim = attr.reserveOnTrim,
+                });
+            }
+
+            return builder.AsPool();
+        }
+    }
+
     public class Pool<T> where T : class
     {
 
@@ -48,24 +69,6 @@ namespace AillieoUtils
         public static PoolBuilder<T> Create()
         {
             return new PoolBuilder<T>();
-        }
-
-        public static Pool<R> CreateDefault<R>() where R : class, T, IPoolable, new()
-        {
-            PoolBuilder<R> builder = Pool<R>.Create();
-            builder.SetOnGet(o => o.OnGet());
-            builder.SetOnRecycle(o => o.OnRecycle());
-            var attr = typeof(R).GetCustomAttribute<PoolPolicyAttribute>(true);
-            if (attr != null)
-            {
-                builder.SetPolicy(new PoolPolicy()
-                {
-                    sizeMax = attr.sizeMax,
-                    reserveOnTrim = attr.reserveOnTrim,
-                });
-            }
-
-            return builder.AsPool();
         }
 
         public void Trim()
