@@ -1,33 +1,13 @@
 using System;
 using System.Collections.Generic;
 using System.Reflection;
+using UnityEngine;
 
 namespace AillieoUtils
 {
-    public static class Pool
+    public class Pool<T>
+        where T : class
     {
-        public static Pool<T> CreateDefault<T>() where T : class, IPoolable, new()
-        {
-            PoolBuilder<T> builder = Pool<T>.Create();
-            builder.SetOnGet(o => o.OnGet());
-            builder.SetOnRecycle(o => o.OnRecycle());
-            var attr = typeof(T).GetCustomAttribute<PoolPolicyAttribute>(true);
-            if (attr != null)
-            {
-                builder.SetPolicy(new PoolPolicy()
-                {
-                    sizeMax = attr.sizeMax,
-                    reserveOnTrim = attr.reserveOnTrim,
-                });
-            }
-
-            return builder.AsPool();
-        }
-    }
-
-    public class Pool<T> where T : class
-    {
-
 #if EASY_OBJECT_POOL_SAFE_MODE
         public static readonly bool SAFE_MODE = true;
 #else
@@ -64,6 +44,28 @@ namespace AillieoUtils
             }
 
             this.nameForProfiler = nameForProfiler;
+        }
+
+        public static Pool<T> CreateDefault()
+        {
+            PoolBuilder<T> builder = Create();
+            if (typeof(IPoolable).IsAssignableFrom(typeof(T)))
+            {
+                builder.SetOnGet(o => (o as IPoolable)?.OnGet());
+                builder.SetOnRecycle(o => (o as IPoolable)?.OnRecycle());
+            }
+
+            var attr = typeof(T).GetCustomAttribute<PoolPolicyAttribute>(true);
+            if (attr != null)
+            {
+                builder.SetPolicy(new PoolPolicy()
+                {
+                    sizeMax = attr.sizeMax,
+                    reserveOnTrim = attr.reserveOnTrim,
+                });
+            }
+
+            return builder.AsPool();
         }
 
         public static PoolBuilder<T> Create()
@@ -134,11 +136,10 @@ namespace AillieoUtils
 
         public void Trim(int keepCount)
         {
+            keepCount = Mathf.Max(keepCount, 0);
             while (stack.Count > keepCount)
             {
                 T item = stack.Pop();
-                onRecycle?.Invoke(item);
-                PoolProfiler.Report(this, PoolProfiler.PoolAction.Recycle, stack.Count);
                 destroyFunc?.Invoke(item);
                 PoolProfiler.Report(this, PoolProfiler.PoolAction.Destroy, stack.Count);
             }
@@ -147,6 +148,11 @@ namespace AillieoUtils
         public void Purge()
         {
             Trim(0);
+        }
+
+        public int CountInPool()
+        {
+            return stack.Count;
         }
 
         private T CreateNewItem()
@@ -160,13 +166,14 @@ namespace AillieoUtils
             {
                 newInstance = Activator.CreateInstance<T>();
             }
+
             PoolProfiler.Report(this, PoolProfiler.PoolAction.Create, stack.Count);
             return newInstance;
         }
 
-        public AutoRecycleScope<T> GetScope()
+        public PoolScope<T> GetScope()
         {
-            return new AutoRecycleScope<T>(this);
+            return new PoolScope<T>(this);
         }
     }
 }

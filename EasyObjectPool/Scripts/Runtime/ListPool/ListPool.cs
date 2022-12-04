@@ -8,23 +8,28 @@ namespace AillieoUtils
     public static class ListPool<T>
     {
         private const int subPoolCount = 3;
-        private static readonly Stack<List<T>>[] stacks = new Stack<List<T>>[] {
+        private static readonly Stack<List<T>>[] stacks = new Stack<List<T>>[]
+        {
             new Stack<List<T>>(),
             new Stack<List<T>>(),
-            new Stack<List<T>>()
-        };
-        private static readonly int[] thresholds = new int[] {
-            512,
-            64,
-            0
-        };
-        private static readonly int[] poolSizes = new int[] {
-            16,
-            32,
-            32
+            new Stack<List<T>>(),
         };
 
-        private static readonly PoolPolicy policy = new PoolPolicy() { sizeMax = poolSizes.Sum() };
+        private static readonly int[] thresholds = new int[]
+        {
+            512,
+            64,
+            0,
+        };
+
+        private static readonly int[] poolSizes = new int[]
+        {
+            16,
+            32,
+            32,
+        };
+
+        private static readonly PoolPolicy policy = new PoolPolicy { sizeMax = poolSizes.Sum() };
 
 #if EASY_OBJECT_POOL_SAFE_MODE
         private static readonly HashSet<List<T>> validationSet = new HashSet<List<T>>();
@@ -32,9 +37,14 @@ namespace AillieoUtils
 
         public static List<T> Get(int expectedCapacity = 0)
         {
-            for (int i = 0; i < subPoolCount; ++ i)
+            if (expectedCapacity < 0)
             {
-                if (expectedCapacity > thresholds[i])
+                throw new ArgumentException($"invalid params: {nameof(expectedCapacity)}={expectedCapacity}");
+            }
+
+            for (int i = 0; i < subPoolCount; ++i)
+            {
+                if (expectedCapacity >= thresholds[i])
                 {
                     Stack<List<T>> stack = stacks[i];
                     if (stack.Count > 0)
@@ -43,18 +53,14 @@ namespace AillieoUtils
                         OnGet(instance);
                         return instance;
                     }
-
-                    if (i == subPoolCount - 1)
-                    {
-                        // 最后一层了
-                        List<T> instance = new List<T>();
-                        OnCreate(instance);
-                        OnGet(instance);
-                        return instance;
-                    }
                 }
             }
-            throw new ArgumentException($"invalid params: {nameof(expectedCapacity)}={expectedCapacity}");
+
+            // 最后一层了
+            List<T> newInstance = new List<T>();
+            OnCreate(newInstance);
+            OnGet(newInstance);
+            return newInstance;
         }
 
         public static void Recycle(List<T> list)
@@ -73,31 +79,28 @@ namespace AillieoUtils
                         stack.Push(list);
                         return;
                     }
-
-                    if (i == subPoolCount - 1)
-                    {
-                        // 最后一层了
-                        OnRecycle(list);
-                        OnDestroy(list);
-                        return;
-                    }
                 }
             }
+
+            // 最后一层了
+            OnRecycle(list);
+            OnDestroy(list);
         }
 
-        public static ListAutoRecycleScope<List<T>> GetScope()
+        public static ListPoolScope<T> GetScope()
         {
-            ListAutoRecycleScope<List<T>> scope = new ListAutoRecycleScope<List<T>>();
+            ListPoolScope<T> scope = ListPoolScope<T>.Create();
             return scope;
         }
 
         public static int CountInPool()
         {
             int count = 0;
-            for (int i = 0; i < subPoolCount; ++ i)
+            for (int i = 0; i < subPoolCount; ++i)
             {
                 count += stacks[i].Count;
             }
+
             return count;
         }
 

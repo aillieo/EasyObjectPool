@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using UnityEngine;
 #if UNITY_EDITOR
 using UnityEditor;
@@ -11,29 +12,76 @@ namespace AillieoUtils
     {
         private readonly Dictionary<GameObject, Pool<GameObject>> prefabLookUp = new Dictionary<GameObject, Pool<GameObject>>();
         private readonly Dictionary<GameObject, Pool<GameObject>> instanceLookUp = new Dictionary<GameObject, Pool<GameObject>>();
-        private ScheduledTask task;
 
-        private void Awake()
+        private const float autoCleanupInterval = 60f;
+        private const int subRootCount = 13;
+
+        private float autoCleanupTimer = 0;
+        private int rootIndex;
+
+        private Func<GameObject, GameObject> delCreate;
+        private Action<GameObject> delDestroy;
+        private Action<GameObject> delRecycle;
+        private Action<GameObject> delGet;
+
+        protected override void Awake()
         {
-            gameObject.SetActive(false);
-            task = Scheduler.Schedule(RemoveInvalid, 60f);
+            base.Awake();
 
             Application.lowMemory += OnLowMemory;
+
+            foreach (var i in Enumerable.Range(0, subRootCount))
+            {
+                GameObject subRoot = new GameObject($"{i}");
+                subRoot.SetActive(false);
+                subRoot.transform.SetParent(this.transform, false);
+            }
+
+            delCreate = this.PoolOnCreate;
+            delDestroy = this.PoolOnDestroy;
+            delGet = this.PoolOnGet;
+            delRecycle = this.PoolOnRecycle;
         }
 
-        private new void OnDestroy()
+        protected override void OnDestroy()
         {
             Application.lowMemory -= OnLowMemory;
 
-            if (Scheduler.HasInstance)
-            {
-                Scheduler.Unschedule(task);
-                task = null;
-            }
             base.OnDestroy();
         }
 
-        private void InternalDestroy(GameObject instance)
+        private void Update()
+        {
+            autoCleanupTimer += Time.deltaTime;
+
+            if (autoCleanupTimer > autoCleanupInterval)
+            {
+                autoCleanupTimer -= autoCleanupInterval;
+                InternalRemoveInvalid();
+            }
+        }
+
+        private GameObject PoolOnCreate(GameObject prefab)
+        {
+            return Instantiate(prefab);
+        }
+
+        private void PoolOnGet(GameObject instance)
+        {
+            instance.transform.SetParent(null, false);
+        }
+
+        private void PoolOnRecycle(GameObject instance)
+        {
+            rootIndex++;
+            rootIndex %= subRootCount;
+            Transform root = this.transform.GetChild(rootIndex);
+
+
+            instance.transform.SetParent(root, false);
+        }
+
+        private void PoolOnDestroy(GameObject instance)
         {
 #if UNITY_EDITOR
             GameObject.DestroyImmediate(instance);
@@ -51,10 +99,10 @@ namespace AillieoUtils
                 builder.SetPolicy(policy.poolPolicy);
             }
 
-            return builder.SetCreateFunc(() => GameObject.Instantiate(prefab))
-                .SetDestroyFunc(InternalDestroy)
-                .SetOnRecycle(obj => obj.transform.SetParent(transform, false))
-                .SetOnGet(obj => obj.transform.SetParent(null, false))
+            return builder.SetCreateFunc(() => delCreate(prefab))
+                .SetDestroyFunc(delDestroy)
+                .SetOnRecycle(delRecycle)
+                .SetOnGet(delGet)
                 .SetNameForProfiler($"GO|{prefab.name}")
                 .AsPool();
         }
@@ -98,7 +146,8 @@ namespace AillieoUtils
             Instance.InternalRemoveInvalid();
         }
 
-        private List<KeyValuePair<GameObject,Pool<GameObject>>> toRemove = new List<KeyValuePair<GameObject, Pool<GameObject>>>();
+        private List<KeyValuePair<GameObject, Pool<GameObject>>> toRemove = new List<KeyValuePair<GameObject, Pool<GameObject>>>();
+
         private void InternalRemoveInvalid()
         {
             toRemove.Clear();
