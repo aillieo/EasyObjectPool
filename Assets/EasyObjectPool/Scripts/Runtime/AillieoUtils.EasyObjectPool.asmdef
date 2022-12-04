@@ -1,7 +1,7 @@
 {
     "name": "AillieoUtils.EasyObjectPool",
+    "rootNamespace": "",
     "references": [
-        "AillieoUtils.EasyScheduler",
         "AillieoUtils.UnitySingleton"
     ],
     "includePlatforms": [],

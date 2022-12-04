@@ -3,9 +3,10 @@ using System.Collections.Generic;
 
 namespace AillieoUtils
 {
-    public struct AutoRecycleScope<T> : IDisposable where T : class
+    public struct PoolScope<T> : IDisposable
+        where T : class
     {
-        internal AutoRecycleScope(Pool<T> pool)
+        internal PoolScope(Pool<T> pool)
         {
             recorder = HashSetPool<T>.Get();
             this.pool = pool;
@@ -20,7 +21,7 @@ namespace AillieoUtils
         {
             if (!alive)
             {
-                throw new Exception($"{typeof(AutoRecycleScope<T>)} is disposed");
+                throw new InvalidOperationException($"{typeof(PoolScope<T>)} is disposed");
             }
 
             T obj = pool.Get();
@@ -32,7 +33,7 @@ namespace AillieoUtils
         {
             if (!alive)
             {
-                throw new Exception($"{typeof(AutoRecycleScope<T>)} is disposed");
+                throw new InvalidOperationException($"{typeof(PoolScope<T>)} is disposed");
             }
 
             recorder.Remove(obj);
@@ -41,16 +42,18 @@ namespace AillieoUtils
 
         public void Dispose()
         {
-            if(!alive)
+            if (!alive)
             {
                 return;
             }
+
             alive = false;
 
-            foreach(T item in recorder)
+            foreach (T item in recorder)
             {
                 pool.Recycle(item);
             }
+
             recorder.Clear();
 
             HashSetPool<T>.Recycle(recorder);

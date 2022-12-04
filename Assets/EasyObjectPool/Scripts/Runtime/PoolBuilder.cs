@@ -15,7 +15,7 @@ namespace AillieoUtils
         {
             if (this.policy == null)
             {
-                if(createNewInstance)
+                if (createNewInstance)
                 {
                     this.policy = new PoolPolicy();
                 }

@@ -91,6 +91,7 @@ namespace AillieoUtils
             {
                 result = result.Where(r => r.critical);
             }
+
             if (!string.IsNullOrEmpty(filterString))
             {
                 result = result.Where(r => r.name.Contains(filterString));
@@ -155,5 +156,4 @@ namespace AillieoUtils
             GUILayout.EndHorizontal();
         }
     }
-
 }
