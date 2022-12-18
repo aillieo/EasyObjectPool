@@ -31,9 +31,7 @@ namespace AillieoUtils
 
         private static readonly PoolPolicy policy = new PoolPolicy { sizeMax = poolSizes.Sum() };
 
-#if EASY_OBJECT_POOL_SAFE_MODE
         private static readonly HashSet<List<T>> validationSet = new HashSet<List<T>>();
-#endif
 
         public static List<T> Get(int expectedCapacity = 0)
         {
@@ -104,45 +102,41 @@ namespace AillieoUtils
             return count;
         }
 
-        [Conditional("UNITY_EDITOR")]
-        [Conditional("EASY_OBJECT_POOL_SAFE_MODE")]
         private static void OnGet(List<T> item)
         {
-#if EASY_OBJECT_POOL_SAFE_MODE
-            validationSet.Add(item);
-#endif
-            PoolProfiler.Report<List<T>>($"ListPool<{typeof(T).Name}>", policy, PoolProfiler.PoolAction.Get, CountInPool());
+            if (EasyObjectPoolConfig.Instance.enableSafeMode)
+            {
+                validationSet.Add(item);
+            }
+
+            PoolProfiler.Report<List<T>>($"ListPool<{typeof(T).Name}>", policy, PoolAction.Get, CountInPool());
         }
 
-        [Conditional("UNITY_EDITOR")]
-        [Conditional("EASY_OBJECT_POOL_SAFE_MODE")]
         private static void OnCreate(List<T> item)
         {
-            PoolProfiler.Report<List<T>>($"ListPool<{typeof(T).Name}>", policy, PoolProfiler.PoolAction.Create, CountInPool());
+            PoolProfiler.Report<List<T>>($"ListPool<{typeof(T).Name}>", policy, PoolAction.Create, CountInPool());
         }
 
-        [Conditional("UNITY_EDITOR")]
-        [Conditional("EASY_OBJECT_POOL_SAFE_MODE")]
         private static void OnRecycle(List<T> item)
         {
-#if EASY_OBJECT_POOL_SAFE_MODE
-            if (validationSet.Contains(item))
+            if (EasyObjectPoolConfig.Instance.enableSafeMode)
             {
-                validationSet.Remove(item);
+                if (validationSet.Contains(item))
+                {
+                    validationSet.Remove(item);
+                }
+                else
+                {
+                    throw new Exception("attempts to recycle an invalid object: has been recycled or does not belong to this pool");
+                }
             }
-            else
-            {
-                throw new Exception("attempts to recycle an invalid object: has been recycled or does not belong to this pool");
-            }
-#endif
-            PoolProfiler.Report<List<T>>($"ListPool<{typeof(T).Name}>", policy, PoolProfiler.PoolAction.Recycle, CountInPool());
+
+            PoolProfiler.Report<List<T>>($"ListPool<{typeof(T).Name}>", policy, PoolAction.Recycle, CountInPool());
         }
 
-        [Conditional("UNITY_EDITOR")]
-        [Conditional("EASY_OBJECT_POOL_SAFE_MODE")]
         private static void OnDestroy(List<T> item)
         {
-            PoolProfiler.Report<List<T>>($"ListPool<{typeof(T).Name}>", policy, PoolProfiler.PoolAction.Destroy, CountInPool());
+            PoolProfiler.Report<List<T>>($"ListPool<{typeof(T).Name}>", policy, PoolAction.Destroy, CountInPool());
         }
     }
 }

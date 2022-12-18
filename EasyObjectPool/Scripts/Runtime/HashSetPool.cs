@@ -25,9 +25,9 @@ namespace AillieoUtils
             return pool.GetScope();
         }
 
-        public static void Trim(int keepCount = 0)
+        public static void Shrink(int keepCount = 0)
         {
-            pool.Trim(keepCount);
+            pool.Shrink(keepCount);
         }
     }
 }

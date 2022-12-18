@@ -10,7 +10,7 @@ namespace AillieoUtils
     public class PoolProfilerWindow : EditorWindow
     {
 
-        [MenuItem("AillieoUtils/EasyObjectPool/Profiler")]
+        [MenuItem("AillieoUtils/EasyObjectPool/Profiler/ProfilerWindow")]
         public static void Open()
         {
             GetWindow<PoolProfilerWindow>("EasyObjectPool Profiler");

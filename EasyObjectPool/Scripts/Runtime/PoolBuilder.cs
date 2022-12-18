@@ -2,7 +2,8 @@ using System;
 
 namespace AillieoUtils
 {
-    public class PoolBuilder<T> where T : class
+    public class PoolBuilder<T>
+        where T : class
     {
         private Func<T> createFunc;
         private Action<T> onGet;
@@ -21,7 +22,7 @@ namespace AillieoUtils
                 }
                 else
                 {
-                    this.policy = PoolPolicy.defaultInstance;
+                    this.policy = PoolPolicy.defaultPolicy;
                 }
             }
         }
@@ -42,10 +43,10 @@ namespace AillieoUtils
             return this;
         }
 
-        public PoolBuilder<T> SetReserveOnTrim(int reserveOnTrim)
+        public PoolBuilder<T> SetCapacity(int capacity)
         {
             EnsurePoolPolicy(true);
-            this.policy.reserveOnTrim = reserveOnTrim;
+            this.policy.capacity = capacity;
             return this;
         }
 
