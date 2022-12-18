@@ -15,16 +15,18 @@ namespace AillieoUtils
             Assert.IsNotNull(onGet, $"invalid {nameof(onGet)}");
             Assert.IsNotNull(onRecycle, $"invalid {nameof(onRecycle)}");
             var builder = Pool<GameObject>.Create();
-            GameObjectPoolPolicy policy = prefab.GetComponent<GameObjectPoolPolicy>();
-            if (policy != null)
+            GameObjectPoolPolicyBehaviour policyBehaviour = prefab.GetComponent<GameObjectPoolPolicyBehaviour>();
+            if (policyBehaviour != null)
             {
-                builder.SetPolicy(policy.poolPolicy);
+                builder.SetCapacity(policyBehaviour.poolPolicy.capacity);
+                builder.SetSizeMax(policyBehaviour.poolPolicy.sizeMax);
             }
 
             pool = builder.SetCreateFunc(() => GameObject.Instantiate(prefab))
                 .SetOnGet(onGet)
                 .SetOnRecycle(onRecycle)
-                .SetDestroyFunc(obj => {
+                .SetDestroyFunc(obj =>
+                {
 #if UNITY_EDITOR
                     GameObject.DestroyImmediate(obj);
 #else
@@ -40,10 +42,11 @@ namespace AillieoUtils
             Assert.IsNotNull(prefab, $"invalid {nameof(prefab)}");
             Assert.IsNotNull(poolRootNode, $"invalid {nameof(poolRootNode)}");
             var builder = Pool<GameObject>.Create();
-            GameObjectPoolPolicy policy = prefab.GetComponent<GameObjectPoolPolicy>();
-            if (policy != null)
+            GameObjectPoolPolicyBehaviour policyBehaviour = prefab.GetComponent<GameObjectPoolPolicyBehaviour>();
+            if (policyBehaviour != null)
             {
-                builder.SetPolicy(policy.poolPolicy);
+                builder.SetCapacity(policyBehaviour.poolPolicy.capacity);
+                builder.SetSizeMax(policyBehaviour.poolPolicy.sizeMax);
             }
 
             pool = builder.SetCreateFunc(() => GameObject.Instantiate(prefab))
@@ -85,9 +88,9 @@ namespace AillieoUtils
             pool.Prepare(count);
         }
 
-        public void Trim()
+        public void Shrink()
         {
-            pool.Trim();
+            pool.Shrink(0);
         }
     }
 }

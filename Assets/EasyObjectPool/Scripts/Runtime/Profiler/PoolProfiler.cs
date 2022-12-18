@@ -6,30 +6,22 @@ namespace AillieoUtils
 {
     internal static class PoolProfiler
     {
-        public enum PoolAction
-        {
-            Create,
-            Get,
-            Recycle,
-            Destroy,
-        }
-
         public class ProfilerInfo
         {
             public struct PolicyInfo
             {
-                public int reserveOnTrim;
+                public int capacity;
                 public int sizeMax;
 
-                public PolicyInfo(int reserveOnTrim, int sizeMax)
+                public PolicyInfo(int capacity, int sizeMax)
                 {
-                    this.reserveOnTrim = reserveOnTrim;
+                    this.capacity = capacity;
                     this.sizeMax = sizeMax;
                 }
 
                 public override string ToString()
                 {
-                    return $"RES:{reserveOnTrim}/SIZE:{sizeMax}";
+                    return $"RES:{capacity}/SIZE:{sizeMax}";
                 }
             }
 
@@ -66,7 +58,7 @@ namespace AillieoUtils
             ProfilerInfo info;
             if (!records.TryGetValue(pool, out info))
             {
-                info = new ProfilerInfo(pool.nameForProfiler, typeof(T).Name, new ProfilerInfo.PolicyInfo(pool.policy.reserveOnTrim, pool.policy.sizeMax));
+                info = new ProfilerInfo(pool.nameForProfiler, typeof(T).Name, new ProfilerInfo.PolicyInfo(pool.policy.capacity, pool.policy.sizeMax));
                 records.Add(pool, info);
             }
 
@@ -96,7 +88,7 @@ namespace AillieoUtils
             ProfilerInfo info;
             if (!records.TryGetValue(poolName, out info))
             {
-                info = new ProfilerInfo(poolName, typeof(T).Name, new ProfilerInfo.PolicyInfo(poolPolicy.reserveOnTrim, poolPolicy.sizeMax));
+                info = new ProfilerInfo(poolName, typeof(T).Name, new ProfilerInfo.PolicyInfo(poolPolicy.capacity, poolPolicy.sizeMax));
                 records.Add(poolName, info);
             }
 
@@ -133,7 +125,7 @@ namespace AillieoUtils
         public static bool IsBadPolicy(ProfilerInfo profilerInfo)
         {
             return profilerInfo.timesDestroy > 2 * profilerInfo.policy.sizeMax
-                || profilerInfo.timesRecycle < profilerInfo.policy.reserveOnTrim * 0.1f;
+                || profilerInfo.timesRecycle < profilerInfo.policy.capacity * 0.1f;
         }
 
         public static bool IsLeakPotential(ProfilerInfo profilerInfo)
