@@ -20,9 +20,7 @@ namespace AillieoUtils
 
         internal readonly string nameForProfiler;
 
-#if EASY_OBJECT_POOL_ENABLE_PROFILER
         internal readonly PoolStatisticInfo statisticInfo;
-#endif
 
         private HashSet<T> validationSet = new HashSet<T>();
 
@@ -127,7 +125,7 @@ namespace AillieoUtils
 
         public void Prepare(int count)
         {
-            while(stack.Count < count)
+            while (stack.Count < count)
             {
                 stack.Push(CreateNewItem());
             }

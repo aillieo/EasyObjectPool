@@ -6,14 +6,18 @@ namespace AillieoUtils
     [SettingsMenuPath(settingsPath)]
     internal class EasyObjectPoolConfig : SingletonScriptableObject<EasyObjectPoolConfig>
     {
-        public const string settingsPath = "AillieoUtils/EasyObjectPoolConfig";
+        private const string settingsPath = "AillieoUtils/EasyObjectPoolConfig";
 
-        public bool enableProfiler;
-        public bool enableSafeMode;
+        [SerializeField]
+        internal bool enableProfiler;
+        [SerializeField]
+        internal bool enableSafeMode;
 
-        public PoolPolicy defaultPoolPolicy;
+        [SerializeField]
+        internal PoolPolicy defaultPoolPolicy;
 
-        public GameObjectPoolPolicy[] defaultGameObjectPoolPolicies;
+        [SerializeField]
+        internal GameObjectPoolPolicy[] defaultGameObjectPoolPolicies;
 
         protected override void Awake()
         {

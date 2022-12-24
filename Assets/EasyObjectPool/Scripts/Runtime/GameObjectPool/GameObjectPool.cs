@@ -1,6 +1,3 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
 using UnityEngine;
 #if UNITY_EDITOR
 using UnityEditor;
@@ -18,7 +15,7 @@ namespace AillieoUtils
             GameObjectPoolImpl.Instance.InternalRemoveInvalid();
         }
 
-        public static GameObject Get(GameObject prefab)
+        public static GameObject Get(GameObject prefab, Transform parent = null)
         {
 #if UNITY_EDITOR
             if (!PrefabUtility.IsPartOfPrefabAsset(prefab))
@@ -26,7 +23,7 @@ namespace AillieoUtils
                 Debug.LogWarning($"Create a pool with a non-prefab GameObject '{prefab.name}' may lead to unexpected behaviour");
             }
 #endif
-            return GameObjectPoolImpl.Instance.InternalGet(prefab);
+            return GameObjectPoolImpl.Instance.InternalGet(prefab, parent);
         }
 
         public static void Recycle(GameObject instance)
