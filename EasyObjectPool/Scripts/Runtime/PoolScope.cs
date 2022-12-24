@@ -57,6 +57,8 @@ namespace AillieoUtils
             recorder.Clear();
 
             HashSetPool<T>.Recycle(recorder);
+
+            recorder = null;
         }
     }
 }

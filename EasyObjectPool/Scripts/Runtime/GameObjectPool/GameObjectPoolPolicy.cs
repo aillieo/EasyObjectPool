@@ -9,11 +9,11 @@ namespace AillieoUtils
         public int capacity = 4;
         public int sizeMax = 16;
 
-        public int shrink1stInterval;
-        public int shrink1stRatio;
+        public float shrink1stInterval = 30;
+        public float shrink1stRatio = 0.2f;
 
-        public int shrink2ndInterval;
-        public int shrink2ndRatio;
+        public float shrink2ndInterval = 60;
+        public float shrink2ndRatio = 0.1f;
 
         private static GameObjectPoolPolicy defaultInstance;
 

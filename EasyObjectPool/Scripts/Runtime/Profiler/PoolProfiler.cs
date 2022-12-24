@@ -1,9 +1,25 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Diagnostics;
 
 namespace AillieoUtils
 {
+    internal static class PoolProfilerEvents
+    {
+        internal static Action OnPoolCreated;
+
+        internal static Action OnPoolDestroyed;
+
+        internal static Action OnGet;
+
+        internal static Action OnRecycle;
+
+        internal static Action OnCreate;
+
+        internal static Action OnDestroy;
+    }
+
     internal static class PoolProfiler
     {
         public class ProfilerInfo

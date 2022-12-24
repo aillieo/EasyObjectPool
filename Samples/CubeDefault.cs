@@ -1,7 +1,7 @@
 using AillieoUtils;
 using UnityEngine;
 
-[PoolPolicy(sizeMax = 4, capacity = 2)]
+[PoolPolicy(sizeMax = 4, reserveOnTrim = 2)]
 public class CubeDefault : IPoolable
 {
     private static int sid = 0;
