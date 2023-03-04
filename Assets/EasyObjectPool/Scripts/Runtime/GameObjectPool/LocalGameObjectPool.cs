@@ -28,7 +28,14 @@ namespace AillieoUtils
                 .SetDestroyFunc(obj =>
                 {
 #if UNITY_EDITOR
-                    GameObject.DestroyImmediate(obj);
+                    if (Application.isPlaying)
+                    {
+                        GameObject.Destroy(obj);
+                    }
+                    else
+                    {
+                        GameObject.DestroyImmediate(obj);
+                    }
 #else
                     GameObject.Destroy(obj);
 #endif
@@ -52,9 +59,17 @@ namespace AillieoUtils
             pool = builder.SetCreateFunc(() => GameObject.Instantiate(prefab))
                 .SetOnGet(obj => obj.transform.SetParent(null, false))
                 .SetOnRecycle(obj => obj.transform.SetParent(poolRootNode, false))
-                .SetDestroyFunc(obj => {
+                .SetDestroyFunc(obj =>
+                {
 #if UNITY_EDITOR
-                    GameObject.DestroyImmediate(obj);
+                    if (Application.isPlaying)
+                    {
+                        GameObject.Destroy(obj);
+                    }
+                    else
+                    {
+                        GameObject.DestroyImmediate(obj);
+                    }
 #else
                     GameObject.Destroy(obj);
 #endif
