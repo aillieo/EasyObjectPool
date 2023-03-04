@@ -115,7 +115,14 @@ namespace AillieoUtils
         private void PoolOnDestroy(GameObject instance)
         {
 #if UNITY_EDITOR
-            GameObject.DestroyImmediate(instance);
+            if (Application.isPlaying)
+            {
+                GameObject.Destroy(instance);
+            }
+            else
+            {
+                GameObject.DestroyImmediate(instance);
+            }
 #else
             GameObject.Destroy(instance);
 #endif
